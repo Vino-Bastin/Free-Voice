@@ -39,18 +39,18 @@ const getColors = (mode) => {
             800: "#a1a4ab",
             700: "#727681",
             600: "#1F2A40",
-            500: "#141b2d",
+            500: "#ff0266",
             400: "#101624",
             300: "#0c101b",
             200: "#080b12",
             100: "#040509",
           },
           secondary: {
-            900: "#ffcce0",
+            900: "#ff0266",
             800: "#ff9ac2",
             700: "#ff67a3",
             600: "#ff3585",
-            500: "#ff0266",
+            500: "#ffcce0",
             400: "#cc0252",
             300: "#99013d",
             200: "#660129",
@@ -67,20 +67,39 @@ const getThemeSetting = (mode) => {
   return {
     palette: {
       mode,
-      primary: {
-        main: colors.primary[500],
-      },
-      secondary: {
-        main: colors.secondary[500],
-      },
-      background: {
-        default: colors.secondary[900],
-      },
-      neutral: {
-        dark: colors.primary[700],
-        main: colors.primary[500],
-        light: colors.primary[300],
-      },
+      ...(mode === "dark"
+        ? {
+            primary: {
+              main: colors.primary[500],
+            },
+            secondary: {
+              main: colors.secondary[500],
+            },
+            background: {
+              default: colors.secondary[900],
+            },
+            neutral: {
+              dark: colors.secondary[700],
+              main: colors.secondary[500],
+              light: colors.secondary[300],
+            },
+          }
+        : {
+            primary: {
+              main: colors.secondary[900],
+            },
+            secondary: {
+              main: colors.secondary[500],
+            },
+            background: {
+              default: colors.primary[900],
+            },
+            neutral: {
+              dark: colors.secondary[700],
+              main: colors.secondary[500],
+              light: colors.secondary[300],
+            },
+          }),
     },
     typography: {
       fontFamily,

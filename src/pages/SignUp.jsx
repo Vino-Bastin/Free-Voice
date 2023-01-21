@@ -3,9 +3,14 @@ import { Box, Typography, TextField, Button } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase";
 
-import GoogleIcon from "@mui/icons-material/Google";
-import { useColors } from "../theme/Theme";
+import Logo from "../Components/Logo";
+import AuthContainer from "../Components/AuthContainer";
+import GoogleAuth from "../Components/GoogleAuth";
+import AuthNavigator from "../Components/AuthNavigator";
 
 const initialFormState = {
   displayName: "",
@@ -41,56 +46,51 @@ const signUpFormInput = [
 ];
 
 const SignUp = () => {
-  const colors = useColors();
-  const handleSubmit = (values) => {
-    console.log(values);
+  // * creating a new user with email and password
+  const handleSubmit = async (values, { setErrors }) => {
+    try {
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      await setDoc(doc(db, "users", response.user.uid), {
+        displayName: values.displayName,
+        email: values.email,
+        photoUrl: response.user.photoURL,
+        createAt: serverTimestamp(),
+      });
+    } catch (error) {
+      setErrors({ email: error.customData._tokenResponse.error.message });
+      console.error(error);
+    }
   };
 
+  // * signup page jsx
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      height="100%"
-    >
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        width="50%"
-        height="70%"
-        borderRadius="10px"
-        p="2%"
-        backgroundColor={colors.secondary[600]}
+    <AuthContainer>
+      {/* Logo and subtitle */}
+      <Logo />
+
+      {/* signup form */}
+      <Formik
+        initialValues={initialFormState}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
       >
-        <Typography
-          variant="h2"
-          fontStyle="italic"
-          align="center"
-          color={colors.primary[500]}
-        >
-          Free Voice
-        </Typography>
-        <Typography variant="h6" align="center" mt="5px">
-          Welcome to Free Voice
-        </Typography>
-        <Formik
-          initialValues={initialFormState}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-          }) => (
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+        }) => (
+          <Box width="75%">
             <form onSubmit={handleSubmit} autoComplete="off">
               {signUpFormInput.map((value) => (
                 <TextField
+                  sx={{ marginBottom: "2%" }}
                   key={value.name}
                   type={value.type}
                   fullWidth
@@ -104,27 +104,27 @@ const SignUp = () => {
                   helperText={touched[value.name] && errors[value.name]}
                 />
               ))}
-              <Box textAlign="center" m="3% 0%">
-                <Button>
+              <Box textAlign="center" mb="3%">
+                <Button type="submit">
                   <Typography variant="h6">Create A New Account</Typography>
                 </Button>
               </Box>
             </form>
-          )}
-        </Formik>
-        <Box width="75%">
-          <Divider variant="fullWidth">OR</Divider>
-        </Box>
-        <Box textAlign="center" mt="2%">
-          <Button>
-            <GoogleIcon />
-            <Typography variant="h6" ml="5px">
-              Sign Up With Google
-            </Typography>
-          </Button>
-        </Box>
+          </Box>
+        )}
+      </Formik>
+
+      {/* divider */}
+      <Box width="75%">
+        <Divider variant="fullWidth">OR</Divider>
       </Box>
-    </Box>
+
+      {/* signup with google */}
+      <GoogleAuth />
+
+      {/* login page link */}
+      <AuthNavigator isLogin />
+    </AuthContainer>
   );
 };
 
