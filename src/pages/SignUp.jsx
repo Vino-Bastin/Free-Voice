@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
+import { useNavigate } from "react-router-dom";
 
 import Logo from "../Components/Logo";
 import AuthContainer from "../Components/AuthContainer";
@@ -46,6 +47,8 @@ const signUpFormInput = [
 ];
 
 const SignUp = () => {
+  const navigate = useNavigate();
+
   // * creating a new user with email and password
   const handleSubmit = async (values, { setErrors }) => {
     try {
@@ -60,6 +63,8 @@ const SignUp = () => {
         photoUrl: response.user.photoURL,
         createAt: serverTimestamp(),
       });
+      console.log(response);
+      navigate("/");
     } catch (error) {
       setErrors({ email: error.customData._tokenResponse.error.message });
       console.error(error);

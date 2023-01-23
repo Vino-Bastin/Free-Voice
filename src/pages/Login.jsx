@@ -3,6 +3,7 @@ import * as yup from "yup";
 import { Formik } from "formik";
 import { Box, Typography, TextField, Button, Divider } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 import { auth } from "../firebase/firebase";
 import AuthContainer from "../Components/AuthContainer";
@@ -37,6 +38,8 @@ const loginFormInput = [
 ];
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const handleSubmit = async (values, { setErrors }) => {
     try {
       const response = await signInWithEmailAndPassword(
@@ -45,6 +48,7 @@ const Login = () => {
         values.password
       );
       console.log(response);
+      navigate("/");
     } catch (error) {
       console.error(error);
       if (error.code === "auth/user-not-found")

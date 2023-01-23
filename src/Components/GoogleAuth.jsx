@@ -2,12 +2,15 @@ import React from "react";
 import { signInWithPopup } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { Box, Button, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 import { auth, db, googleProvider } from "../firebase/firebase";
 
 import GoogleIcon from "@mui/icons-material/Google";
 
 const GoogleAuth = ({ isLogin = false }) => {
+  const navigate = useNavigate();
+
   //* sign in with google
   const handleGoogleSignUp = async () => {
     try {
@@ -19,6 +22,7 @@ const GoogleAuth = ({ isLogin = false }) => {
         createAt: response.user.metadata.creationTime,
       });
       console.log(response);
+      navigate("/");
     } catch (error) {
       console.error(error);
     }
