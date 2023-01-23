@@ -133,6 +133,7 @@ const getThemeSetting = (mode) => {
 };
 
 export const ThemeContext = createContext({
+  mode: "dark",
   toggleMode: () => {},
 });
 
@@ -148,7 +149,7 @@ export const ThemeProvider = ({ children }) => {
   }, [mode]);
 
   return (
-    <ThemeContext.Provider value={{ toggleMode }}>
+    <ThemeContext.Provider value={{ toggleMode, mode }}>
       <Provider theme={theme}>
         <CssBaseline />
         {children}

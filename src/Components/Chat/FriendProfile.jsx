@@ -60,11 +60,9 @@ const FriendProfile = ({
             createdAt: serverTimestamp(),
           }
         );
-      } else {
-        console.log("Document data:", docSnap.docs[0].data());
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
     setUsers([]);
   };

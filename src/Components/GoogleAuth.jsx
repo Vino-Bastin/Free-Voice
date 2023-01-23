@@ -1,6 +1,6 @@
 import React from "react";
 import { signInWithPopup } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -19,9 +19,8 @@ const GoogleAuth = ({ isLogin = false }) => {
         displayName: response.user.displayName,
         email: response.user.email,
         photoUrl: response.user.photoURL,
-        createAt: response.user.metadata.creationTime,
+        createAt: serverTimestamp(),
       });
-      console.log(response);
       navigate("/");
     } catch (error) {
       console.error(error);

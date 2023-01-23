@@ -54,7 +54,6 @@ const FriendsList = () => {
               })),
             })
           );
-          console.log("New message: ", change.doc.data());
         });
       }
     );
@@ -81,16 +80,18 @@ const FriendsList = () => {
                 setConversation({
                   id: change.doc.id,
                   data: {
-                    ...change.doc.data(),
+                    members: change.doc.data().members,
                     createdAt: `${change.doc.data().createdAt.toDate()}`,
                   },
-                  profile: friendDetails.data(),
+                  profile: {
+                    ...friendDetails.data(),
+                    createAt: `${friendDetails.data().createAt?.toDate()}`,
+                  },
                 })
               );
-              console.log("New conversation: ", change.doc.data());
             })
             .catch((error) => {
-              console.log("Error getting document:", error);
+              console.error("Error getting document:", error);
             });
         });
       }

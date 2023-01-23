@@ -32,7 +32,7 @@ const Search = () => {
       searchInputRef.current.value = "";
       setUsers(docSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

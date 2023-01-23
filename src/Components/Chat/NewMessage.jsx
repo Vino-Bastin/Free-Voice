@@ -17,10 +17,8 @@ const NewMessage = () => {
   const auth = useContext(AuthContext);
 
   const handleSend = async () => {
-    console.log(newMessageInputRef.current.value);
-
     try {
-      const response = await setDoc(
+      await setDoc(
         doc(db, "messages", currentConversation),
         {
           messages: arrayUnion({
@@ -34,10 +32,9 @@ const NewMessage = () => {
         }
       );
 
-      console.log(response);
       newMessageInputRef.current.value = "";
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

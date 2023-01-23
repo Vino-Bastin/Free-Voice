@@ -63,7 +63,6 @@ const SignUp = () => {
         photoUrl: response.user.photoURL,
         createAt: serverTimestamp(),
       });
-      console.log(response);
       navigate("/");
     } catch (error) {
       setErrors({ email: error.customData._tokenResponse.error.message });

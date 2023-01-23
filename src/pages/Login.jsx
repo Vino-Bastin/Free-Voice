@@ -42,12 +42,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setErrors }) => {
     try {
-      const response = await signInWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      console.log(response);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       navigate("/");
     } catch (error) {
       console.error(error);

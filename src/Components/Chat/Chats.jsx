@@ -19,7 +19,7 @@ const Chats = () => {
   if (!currentConversation) return <></>;
 
   return (
-    <Box width="100%" p="1%" overflow="auto" position="relative">
+    <Box width="calc(100% - 250px)" p="1%" position="relative">
       {/* chat header */}
       <Box display="flex" bgcolor={colors.primary[500]} p="1%" mb="1%">
         <Box

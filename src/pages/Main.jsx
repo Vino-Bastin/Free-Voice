@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { auth } from "../firebase/firebase";
 import Chat from "../Components/Chat";
+import { AuthContext } from "../firebase/AuthProvider";
 
 const Main = () => {
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
 
-  if (!auth.currentUser) navigate("/login");
+  if (!auth.user) navigate("/login");
+
+  if (auth.user === "initial") return <></>;
 
   return <Chat />;
 };
