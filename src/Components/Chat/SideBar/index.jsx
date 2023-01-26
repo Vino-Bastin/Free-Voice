@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import { Sidebar as ProSidebar, Menu } from "react-pro-sidebar";
-import { useColors } from "../../theme/Theme";
+import { useSelector, useDispatch } from "react-redux";
 
-import MenuIcon from "@mui/icons-material/Menu";
+import { useColors } from "../../../theme/Theme";
+import { selectSidebar, toggleSidebar } from "../../../store/SideBar";
+
 import UserProfile from "./UserProfile";
 import Search from "./Search";
 import FriendsList from "./FriendsList";
 
+import MenuIcon from "@mui/icons-material/Menu";
+
 const SideBar = () => {
   const colors = useColors();
-  const [collapsed, setCollapsed] = useState(false);
+  const collapsed = useSelector(selectSidebar);
+  const dispatch = useDispatch();
+
   return (
+    // * sidebar
     <ProSidebar
       defaultCollapsed={collapsed}
       rootStyles={{
@@ -23,8 +30,9 @@ const SideBar = () => {
         },
       }}
     >
+      {/* sidebar menu's  */}
       <Menu iconShape="square">
-        {/* logo and menu icon */}
+        {/* logo and hamburger icon */}
         <Box
           p="3%"
           display="flex"
@@ -32,18 +40,16 @@ const SideBar = () => {
           textAlign="center"
         >
           {!collapsed && <Typography variant="h3">Free Voice</Typography>}
-          <IconButton onClick={() => setCollapsed((collapsed) => !collapsed)}>
+          <IconButton onClick={() => dispatch(toggleSidebar())}>
             <MenuIcon />
           </IconButton>
         </Box>
+
         {/* user profile */}
-        <UserProfile />
+        {!collapsed && <UserProfile />}
 
         {/* search */}
-        <Typography variant="h6" pl="3%">
-          Find Friends
-        </Typography>
-        <Search />
+        {!collapsed && <Search />}
 
         {/* friends list */}
         <Typography variant="h6" pl="3%">

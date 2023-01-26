@@ -3,13 +3,16 @@ import * as yup from "yup";
 import { Formik } from "formik";
 import { Box, Typography, TextField, Button, Divider } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useDispatch, useSelector } from "react-redux";
 
+import { selectLoading, setLoading } from "../store/Loading";
 import { auth } from "../firebase/firebase";
-import AuthContainer from "../Components/AuthContainer";
+
+import AuthContainer from "../Components/Auth/AuthContainer";
 import Logo from "../Components/Logo";
-import GoogleAuth from "../Components/GoogleAuth";
-import AuthNavigator from "../Components/AuthNavigator";
+import GoogleAuth from "../Components/Auth/GoogleAuth";
+import AuthNavigator from "../Components/Auth/AuthNavigator";
 
 const initialFormState = {
   email: "",
@@ -38,19 +41,25 @@ const loginFormInput = [
 ];
 
 const Login = () => {
-  const navigate = useNavigate();
+  const loading = useSelector(selectLoading);
+  const dispatch = useDispatch();
 
+  // * login with email and password
   const handleSubmit = async (values, { setErrors }) => {
     try {
+      dispatch(setLoading(true));
+      // * login with email and password
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      navigate("/");
     } catch (error) {
+      // * handle errors
       console.error(error);
       if (error.code === "auth/user-not-found")
         setErrors({ email: "User not found" });
       else if (error.code === "auth/wrong-password")
         setErrors({ password: "Wrong password" });
       else setErrors({ email: error.message });
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -91,10 +100,19 @@ const Login = () => {
                   helperText={touched[value.name] && errors[value.name]}
                 />
               ))}
-              <Box textAlign="center" mb="3%">
-                <Button type="submit">
-                  <Typography variant="h6">Login</Typography>
-                </Button>
+              <Box textAlign="center" m="3% 0%">
+                {!loading ? (
+                  <Button type="submit">
+                    <Typography variant="h6">Login</Typography>
+                  </Button>
+                ) : (
+                  <CircularProgress
+                    sx={{
+                      width: "30px",
+                      height: "30px",
+                    }}
+                  />
+                )}
               </Box>
             </form>
           </Box>

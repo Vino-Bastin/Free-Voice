@@ -6,6 +6,7 @@ const AuthNavigator = ({ isLogin = false }) => {
   const navigate = useNavigate();
 
   return (
+    // * navigate to login or signup page
     <Box textAlign="center" mt="2%">
       <Typography variant="h6" display="flex">
         {isLogin ? "Already have an account?" : "Don't have a Account?"}

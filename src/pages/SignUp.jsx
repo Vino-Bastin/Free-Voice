@@ -1,17 +1,23 @@
-import React from "react";
+import React, { useContext, useRef } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 
+import { selectLoading, setLoading } from "../store/Loading";
+import { auth, db } from "../firebase/firebase";
+import { AuthContext } from "../firebase/AuthProvider";
+import { uploadProfilePhoto } from "../firebase/firestore";
+
 import Logo from "../Components/Logo";
-import AuthContainer from "../Components/AuthContainer";
-import GoogleAuth from "../Components/GoogleAuth";
-import AuthNavigator from "../Components/AuthNavigator";
+import AuthContainer from "../Components/Auth/AuthContainer";
+import GoogleAuth from "../Components/Auth/GoogleAuth";
+import AuthNavigator from "../Components/Auth/AuthNavigator";
 
 const initialFormState = {
   displayName: "",
@@ -47,26 +53,57 @@ const signUpFormInput = [
 ];
 
 const SignUp = () => {
+  const { setUser } = useContext(AuthContext);
+  const profilePhoto = useRef(null);
   const navigate = useNavigate();
+  const loading = useSelector(selectLoading);
+  const dispatch = useDispatch();
 
   // * creating a new user with email and password
   const handleSubmit = async (values, { setErrors }) => {
+    let profilePhotoUrl = "";
     try {
-      const response = await createUserWithEmailAndPassword(
+      dispatch(setLoading(true));
+      // * creating a new user with email and password
+      const authResponse = await createUserWithEmailAndPassword(
         auth,
         values.email,
         values.password
       );
-      await setDoc(doc(db, "users", response.user.uid), {
+      //* uploading profile photo to firebase storage
+      profilePhotoUrl = await uploadProfilePhoto(
+        authResponse.user.uid,
+        profilePhoto.current.files[0]
+      );
+      // * creating a new user document in firestore
+      await setDoc(doc(db, "users", authResponse.user.uid), {
         displayName: values.displayName,
         email: values.email,
-        photoUrl: response.user.photoURL,
+        photoUrl: profilePhotoUrl,
         createAt: serverTimestamp(),
+        status: "online",
       });
+      // * setting user in context
+      setUser({
+        uid: authResponse.user.uid,
+        displayName: values.displayName,
+        email: values.email,
+        photoUrl: profilePhotoUrl,
+      });
+      // * redirecting to home page
       navigate("/");
     } catch (error) {
-      setErrors({ email: error.customData._tokenResponse.error.message });
+      // * handling error
+      if (error.code === "auth/email-already-in-use") {
+        setErrors({ email: "Email already in use" });
+      } else if (error.code === "auth/invalid-email") {
+        setErrors({ email: "Invalid email" });
+      } else if (error.code === "auth/weak-password") {
+        setErrors({ password: "Password must be at least 8 characters" });
+      }
       console.error(error);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -108,10 +145,35 @@ const SignUp = () => {
                   helperText={touched[value.name] && errors[value.name]}
                 />
               ))}
-              <Box textAlign="center" mb="3%">
-                <Button type="submit">
-                  <Typography variant="h6">Create A New Account</Typography>
+
+              {/* profile photo input  */}
+              <Box textAlign="center">
+                <Button component="label">
+                  Choice Profile Photo
+                  <input
+                    ref={profilePhoto}
+                    type="file"
+                    name="profilePhoto"
+                    hidden
+                    accept="image/jpg, image/jpeg, image/png"
+                  />
                 </Button>
+              </Box>
+
+              {/* signup button and loading spinner */}
+              <Box textAlign="center" m="3% 0%">
+                {!loading ? (
+                  <Button type="submit">
+                    <Typography variant="h6">Create A New Account</Typography>
+                  </Button>
+                ) : (
+                  <CircularProgress
+                    sx={{
+                      width: "30px",
+                      height: "30px",
+                    }}
+                  />
+                )}
               </Box>
             </form>
           </Box>

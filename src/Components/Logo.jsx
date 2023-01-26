@@ -6,6 +6,7 @@ const Logo = () => {
   const colors = useColors();
 
   return (
+    // * Logo
     <>
       <Typography
         variant="h2"

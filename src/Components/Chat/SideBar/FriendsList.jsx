@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import {
   onSnapshot,
   collection,
@@ -13,12 +13,21 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   selectConversations,
   setConversation,
-} from "../../store/Conversations";
-import { setMessages } from "../../store/Messages";
+  setCurrentConversation,
+} from "../../../store/Conversations";
+import { setMessages } from "../../../store/Messages";
+import { AuthContext } from "../../../firebase/AuthProvider";
+import { db } from "../../../firebase/firebase";
 
-import { db } from "../../firebase/firebase";
-import { AuthContext } from "../../firebase/AuthProvider";
-import FriendProfile from "./FriendProfile";
+import Profile from "./Profile";
+
+const sortConversations = (conversations) => {
+  return Object.entries(conversations).sort((a, b) => {
+    if (a[1].lastMessageTime === "undefined") return 1;
+    if (b[1].lastMessageTime === "undefined") return -1;
+    return new Date(b[1].lastMessageTime) - new Date(a[1].lastMessageTime);
+  });
+};
 
 const FriendsList = () => {
   const auth = useContext(AuthContext);
@@ -34,10 +43,10 @@ const FriendsList = () => {
     [auth]
   );
 
+  // * Get messages
   useEffect(() => {
     const conversationsArray = Object.keys(conversations);
     if (!conversationsArray.length) return;
-
     const unSubtribe = onSnapshot(
       query(
         collection(db, "messages"),
@@ -52,6 +61,8 @@ const FriendsList = () => {
                 ...message,
                 createAt: `${message.createAt.toDate()}`,
               })),
+              isRead: change.doc.data().isRead,
+              lastMessageBy: change.doc.data().lastMessageBy,
             })
           );
         });
@@ -81,6 +92,10 @@ const FriendsList = () => {
                   id: change.doc.id,
                   data: {
                     members: change.doc.data().members,
+                    lastMessageTime: `${change.doc
+                      .data()
+                      .lastMessageTime?.toDate()}`,
+                    lastMessage: change.doc.data().lastMessage,
                     createdAt: `${change.doc.data().createdAt.toDate()}`,
                   },
                   profile: {
@@ -100,17 +115,29 @@ const FriendsList = () => {
     return () => {
       unSubtribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, dispatch]);
+
+  const conversationsList = useMemo(
+    () => sortConversations(conversations),
+    [conversations]
+  );
+
+  // * Set current conversation
+  const onFriendClick = (_, conversationId) => {
+    dispatch(setCurrentConversation({ id: conversationId }));
+  };
 
   return (
     <>
-      {Object.entries(conversations).map(([key, value]) => (
-        <FriendProfile
-          key={key}
-          conversationId={key}
-          displayName={value.profile.displayName}
-          status={value.profile.status || "Hey there"}
-          userId={value.profile.uid}
+      {conversationsList.map(([conversationId, conversation]) => (
+        <Profile
+          key={conversationId}
+          displayName={conversation.profile.displayName}
+          status={conversation.lastMessage || "Hey there"}
+          photoUrl={conversation.profile.photoUrl}
+          onClick={onFriendClick}
+          conversationId={conversationId}
         />
       ))}
     </>

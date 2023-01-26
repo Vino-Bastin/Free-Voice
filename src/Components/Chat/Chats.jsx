@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
 import { useSelector } from "react-redux";
 
 import {
@@ -9,7 +10,7 @@ import {
 
 import { useColors } from "../../theme/Theme";
 import Messages from "./Messages";
-import NewMessage from "./NewMessage";
+import NewMessage from "./Messages/NewMessage";
 
 const Chats = () => {
   const colors = useColors();
@@ -19,22 +20,18 @@ const Chats = () => {
   if (!currentConversation) return <></>;
 
   return (
-    <Box width="calc(100% - 250px)" p="1%" position="relative">
+    <Box width="100%" p="1%" position="relative">
       {/* chat header */}
       <Box display="flex" bgcolor={colors.primary[500]} p="1%" mb="1%">
-        <Box
-          bgcolor={colors.primary[700]}
-          width="50px"
-          height="50px"
-          borderRadius="50%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          fontSize="2rem"
-          mr="2%"
-        >
-          {currentConversationUser.displayName[0].toUpperCase()}
-        </Box>
+        <Avatar
+          sx={{
+            width: 50,
+            height: 50,
+            marginRight: "10px",
+          }}
+          src={currentConversationUser.photoUrl}
+          alt={currentConversationUser.displayName[0].toUpperCase()}
+        />
         <Box display="flex" flexDirection="column" justifyContent="center">
           <Typography variant="h6">
             {currentConversationUser.displayName}
