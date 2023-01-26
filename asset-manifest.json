@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Free-Voice/static/css/main.7ea8155e.css",
+    "main.js": "/Free-Voice/static/js/main.2d5bbf0a.js",
+    "index.html": "/Free-Voice/index.html",
+    "main.7ea8155e.css.map": "/Free-Voice/static/css/main.7ea8155e.css.map",
+    "main.2d5bbf0a.js.map": "/Free-Voice/static/js/main.2d5bbf0a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7ea8155e.css",
+    "static/js/main.2d5bbf0a.js"
+  ]
+}
